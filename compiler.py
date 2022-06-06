@@ -3,6 +3,16 @@
 # - Each .md file in the blog folder is a post.
 # - For each post, create a .html file in the 'blog/compiled' folder, with the correct headers and footers, and the content of the post.
 # - Update the projects.html file to display the new posts.
+#
+# Supported Markdown syntax :
+# - Headers :
+#   - # Title -> h1
+#   - ## Title -> h2
+#   - ### Title -> h3
+#   - #### Title -> h4
+# - Text : 
+#   - Paragraphs -> p
+
 
 import os
 from bs4 import BeautifulSoup
@@ -10,6 +20,8 @@ from bs4 import BeautifulSoup
 css = {
     'h1': 'text-2xl font-bold mb-4',
     'h2': 'text-xl font-bold text-red-400 pt-2',
+    'h3': 'text-lg font-bold text-red-400 pt-2',
+    'h4': 'text-sm font-bold text-red-400 pt-2',
     'date': 'text-md text-gray-300',
 }
 
@@ -42,6 +54,38 @@ def extract_content(md_file):
         text_parsed = []
         currentLine = ""
         for line in text.split('\n'):
+
+            # detect if the line contains text surrounded by a pair of asterisks.
+            # if it does, replace the first one by a <strong> tag, and the second one by a </strong> tag.
+            while line.find('**') != -1:
+                line = line.replace('**', '<strong>', 1)
+                line = line.replace('**', '</strong>', 1)
+            
+            # detect if the line contains text surrounded by a pair of underscores.
+            # if it does, replace the first one by a <u> tag, and the second one by a </em> tag.
+            while line.find('__') != -1:
+                line = line.replace('__', '<u>', 1)
+                line = line.replace('__', '</u>', 1)
+            
+            # detect if the line contains text surrounded by a pair of dashes.
+            # if it does, replace the first one by a <del> tag, and the second one by a </del> tag.
+            while line.find('--') != -1:
+                line = line.replace('--', '<del>', 1)
+                line = line.replace('--', '</del>', 1)
+            
+            # detect if the line contains text surrounded by underscores,
+            # and if it does, replace the first one by a <em> tag, and the second one by a </em> tag.
+            while line.find('_') != -1:
+                line = line.replace('_', '<em>', 1)
+                line = line.replace('_', '</em>', 1)
+            
+            # detect if the line contains text surrounded by single asterisks.
+            # if it does, replace the first one by a <em> tag, and the second one by a </em> tag.
+            while line.find('*') != -1:
+                line = line.replace('*', '<em>', 1)
+                line = line.replace('*', '</em>', 1)
+
+
             if line.startswith('#'):
                 if currentLine != "":
                     text_parsed.append(currentLine.strip())
@@ -65,7 +109,11 @@ def extract_content(md_file):
         # store the rest of the elements in a list of tuples
         content = []
         for line in text_parsed[3:]:
-            if line.startswith('##'):
+            if line.startswith('####'):
+                content.append(('h4', line.replace('####', '').strip()))
+            elif line.startswith('###'):
+                content.append(('h3', line.replace('###', '').strip()))
+            elif line.startswith('##'):
                 content.append(('h2', line.replace('##', '').strip()))
             else :
                 content.append(('p', line.strip()))
