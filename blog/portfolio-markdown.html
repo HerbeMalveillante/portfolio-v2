@@ -39,7 +39,7 @@
         This was a great idea, and reminded me about another direction I wanted to give to my website for a while : a blog.
     </p>
     <p>
-        To be clear, I've always found having a blog was a bit "cringy". I've only seen a few good blogs that weren't managed by big compagnies, and they almost always are managed with a CMS such as wordpress, Hugo, or Jekyll.
+        To be clear, I've always found having a blog was a bit "cringy". I've only seen a few good blogs that weren't managed by big compagnies, and they almost always are managed with a CMS such as <a href="https://wordpress.com">Wordpress</a>, <a href="https://gohugo.io" class="">Hugo</a>, or <a href="https://jekyllrb.com">Jekyll</a>.
         Those tools are great, but I've always been a big fan of building everything myself, and having the least amount of tools between the language I'm using (here : web technologies) and the final product.
         Seeing the mess of a file structure that generates frameworks such as React for example, I prefer to build everything myself so I'm sure I can keep everything clean and tidy.
     </p>
@@ -53,6 +53,136 @@
         My major concern now is to keep traces. Traces of the incredible moments I live with my friends, but also traces of what I do, code, experiment with, and learn.
         I'm sure this will be useful to at least one person, which is me, and that's already a good thing.
     </p>
+
+    <h2>Bad ideas are the easiest to come up with</h2>
+
+    <p>
+        I want to build a blog. With that in mind, all that I had left to do was figure out how.
+        As I previously said, using some kind of CMS was immediately out of the way.
+        Being a big fan of <a href="https://tailwindcss.com">TailwindCSS</a>, I wanted to be able to style my blog as I would with a static website.
+        I'm not sure how customizable are some tools like Jekyll, but that was yet another framework I had to learn, and I wanted to create something from what I already knew.
+        One thing I knew for sure, was Markdown. It's a very cool language, making it easy and fast to write content.
+        I had two plans in mind : if one did not work, I would try the other.
+    </p>
+
+    <ul>
+        <li>
+            Create a transpiler using Python, that would take mardown files as input, and convert them to HTML.
+        </li>
+        <li>
+            Use Showdown to directly load and convert markdown files to HTML with JavaScript.
+        </li>
+    </ul>
+
+    <h2>First plan : The Markdown-To-HTML Transpiler</h2>
+
+    <p>
+        For my first plan to take shape, I firstly needed to build the frontend of my website. Spoiler : It's the one you're looking at now.
+        I wanted to have a very simple and clean interface, almost like a terminal. There already is a lot of personal websites that do this, so I managed to get some inspiration.
+        Shoutout to <a href="https://term.m4tt72.com">Yassine Fathi</a>, which is the first google result for "Terminal Website". His work was close to what I wanted to achieve, 
+        but I'm not a fan of the "typing commands to get info" things : the thing that I liked about it was the font, the simplicity, and the colors.
+    </p>
+
+    <figure>
+        <img src="/images/2.png" alt="">
+        <figcaption>The terminal website that inspired the look of mine.</figcaption>
+    </figure>
+
+    <p>Obviously, some adjustments are still needed, and the version you're looking at is probably not the final one.</p>
+    <p>I need three pages on my websites : </p>
+    <ul>
+        <li>
+            The homepage, which will display some information about me, the technologies I use, and how to contact me
+        </li>
+        <li>
+            The projects, which will contain a list of the projects I'm proud of. Each project will link to a blog page and a github link.
+        </li>
+        <li>
+            The blog itself, which will contain a list of the posts I've written.
+        </li>
+    </ul>
+
+    <p>
+        Coding the frontend was rather quick, as it was a really simple design. As always, I've used vanilla HTML and TailwindCSS. Next was the Python transpiler.
+        The file structure I planned to use was rather simple as well : One folder containing the blog posts as markdown files, and one folder for the output.
+        The transpiler would then create an index of all the files in the blog posts folder, and create all the links on the blog page.
+    </p>
+    <p>
+        The transpilation would have allowed me to use Tailwind to style the elements, would have been extremely performant, and create some nice elements such as a table of content based on the headers.
+        The compiler would simply be a python file that could be executed from the command line, as it would have been included with the project.
+        I left the problem of selecting which files are projects, and which files are regular blogposts, to future me.
+    </p>
+    <p>
+        For me to figure out if my Idea was viable or not, I needed two functions :
+    </p>
+    <ul>
+        <li>
+            One that would take the file of a markdown path as input, and return an object that could describe every element, independently from the language it's from.
+        </li>
+        <li>
+            One that would take the object returned by the previous function, and return an HTML string that would be used to display the content.
+        </li>
+    </ul>
+    <p>
+        Those were pretty simple to create with basic markdown elements : headers, and paragraphs.
+        Once I got it to work, and styled every element accordingly, I looked as the markdown reference for more elements to translate, and that's where I abandoned this step.
+        Markdown is simply not as simple as I remembered. Images, emphasis, links, etc, are way more difficult to identify and isolate than basic heading elements that simply have a prefix, and I would need a complex object architecture to store all the data accordingly (tables, lists, etc).
+        Nested elements are also a pain to work with and were simply not compatible with the current structure of the object storing the article data.
+        Moreover, <a href="https://www.crummy.com/software/BeautifulSoup/bs4/doc/">the module I'm using to manipulate HTML</a> is not really easy to work with.
+        This option is definitely doable : with some more work and time allowed to it, it could work.
+    </p>
+    <p>At this point, with this information in mind, I started working on the second option I had.</p>
+
+    <h2>Second plan : Showdown</h2>
+
+    <p>
+        I'm sure Showdown is a great tool. But for what I needed to do, it was just not enough. When used in the browser, Showdown can load markdown from a javascript string, and convert it to HTML.
+        For my website to work as I wanted it to (aka : write your articles in markdown and forget about them), I needed my website to be able to :
+    </p>
+
+    <ul>
+        <li>
+            Load the list of markdown I've written in the blog directory (as well as their date and short description)
+        </li>
+        <li>
+            For each mardown file, generate a link that will let the <code>article.html</code> file know what article it should load, convert to HTML using Showdown, and display.
+        </li>
+    </ul>
+
+    <p>
+        As I'm not that familiar with vanilla Javascript (or even with the DOM), I was sure that wouldn't be that complicated (When I worked with <a href="https://svelte.dev">Svelte</a> a while back, loading files was a breeze).
+        I've been very suprised to learn that the only apparent way to load files in Javascript is to use <a href="https://jquery.com">jQuery</a> and ajax to make internal requests.
+        I did not know this tool at all, so with the help of stolen code from <a href="https://stackoverflow.com">StackOverflow</a>, I managed to make it work.
+        This method was disappointing as well, as it was not performant at all (no wonder why is everyone is ditching jQuery nowadays), and because Showdown seemed very rigid in the way it styles elements.
+        Getting the right selectors to work with what I supposed were the equivalent elements in Markdown was a pain, and the final result was simply not good enough.
+    </p>
+
+    <h2>The pit of despair</h2>
+
+    <p>
+        Once again, I was not able to make it work as I wanted to. After all these years, I did not learn that programming is not as easy as it seems.
+        This project was supposed to be a quick one : If I had a lot of time to put in it, I would have used Hugo or Jekyll.
+        The last option that came to my mind was the obvious one. The one that was so simple that it never crossed my mind until this point.
+    </p>
+
+    <p>
+        Vanilla HTML
+    </p>
+
+    <p>
+        The problem with vanilla HTML is the need for a boilerplate, and the need to add the links on the blog page by hand. As frightening as it sounds, making something by hand is sometimes the most efficient way.
+        And here we are : twenty minutes later, I was able to start writing the first real blog article, with a file structure as simple as it gets, and the best performance I would ever get with any technology.
+    </p>
+
+    <p>
+        This has been a very cool way to waste 4 hours and 37 minutes (as I type this sentence) and to create an introduciton for this blog. Furthermore and I've learned an interesting thing :
+    </p>
+
+    <h1>Sometimes, you can't create everything by yourself.</h1>
+
+    <p>Stay tuned for the next blog posts ! It won't always be about programming, but anything I can find interesting to talk about.</p>
+
+
     
 </div>
 
